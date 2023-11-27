@@ -957,103 +957,108 @@ describe("change log integration test", () => {
       { "=": "bookStore.city.country.countryName.code" }
     ];
 
-    // const action = PATCH.bind(
-    //   {},
-    //   `/admin/Books(ID=9d703c23-54a8-4eff-81c1-cdce6b8376b1,IsActiveEntity=false)`,
-    //   {
-    //     title: "new title",
-    //     author_ID: "47f97f40-4f41-488a-b10b-a5725e762d5e"
-    //   }
-    // );
-    // await utils.apiAction(
-    //   "admin",
-    //   "BookStores",
-    //   "64625905-c234-4d0d-9bc1-283ee8946770",
-    //   "AdminService",
-    //   action
-    // );
+    const action = PATCH.bind(
+      {},
+      `/odata/v4/admin/Books(ID=9d703c23-54a8-4eff-81c1-cdce6b8376b1,IsActiveEntity=false)`,
+      {
+        title: "new title",
+        author_ID: "47f97f40-4f41-488a-b10b-a5725e762d5e"
+      }
+    );
+    await utils.apiAction(
+      "admin",
+      "BookStores",
+      "64625905-c234-4d0d-9bc1-283ee8946770",
+      "AdminService",
+      action
+    );
 
-    // const titleChanges = await adminService.run(
-    //   SELECT.from(ChangeView).where({
-    //     entity: "sap.capire.bookshop.Books",
-    //     attribute: "title"
-    //   })
-    // );
-    // expect(titleChanges.length).to.equal(1);
-    // const titleChange = titleChanges[0];
-    // expect(titleChange.objectID).to.equal("In Preparation, Paris, Paris, FR");
+    const titleChanges = await adminService.run(
+      SELECT.from(ChangeView).where({
+        entity: "sap.capire.bookshop.Books",
+        attribute: "title"
+      })
+    );
+    expect(titleChanges.length).to.equal(1);
+    const titleChange = titleChanges[0];
+    expect(titleChange.objectID).to.equal("In Preparation, Paris, Paris, FR");
 
-    // cds.services.AdminService.entities.Books["@changelog"] = [
-    //   { "=": "title" },
-    //   { "=": "bookStore.lifecycleStatus.name" },
-    //   { "=": "bookStore.city.country.countryName.name" }
-    // ];
+    cds.services.AdminService.entities.Books["@changelog"] = [
+      { "=": "title" },
+      { "=": "bookStore.lifecycleStatus.name" },
+      { "=": "bookStore.city.country.countryName.name" }
+    ];
 
-    // const deleteAction = DELETE.bind(
-    //   {},
-    //   `/admin/Books(ID=9d703c23-54a8-4eff-81c1-cdce6b8376b1,IsActiveEntity=false)`
-    // );
-    // await utils.apiAction(
-    //   "admin",
-    //   "BookStores",
-    //   "64625905-c234-4d0d-9bc1-283ee8946770",
-    //   "AdminService",
-    //   deleteAction
-    // );
+    const deleteAction = DELETE.bind(
+      {},
+      `/odata/v4/admin/Books(ID=9d703c23-54a8-4eff-81c1-cdce6b8376b1,IsActiveEntity=false)`
+    );
+    await utils.apiAction(
+      "admin",
+      "BookStores",
+      "64625905-c234-4d0d-9bc1-283ee8946770",
+      "AdminService",
+      deleteAction
+    );
 
-    // const deleteTitleChanges = await adminService.run(
-    //   SELECT.from(ChangeView).where({
-    //     entity: "sap.capire.bookshop.Books",
-    //     attribute: "title",
-    //     modification: "delete"
-    //   })
-    // );
-    // expect(deleteTitleChanges.length).to.equal(1);
-    // const deleteTitleChange = deleteTitleChanges[0];
-    // expect(deleteTitleChange.objectID).to.equal(
-    //   "new title, In Preparation, France"
-    // );
+    const deleteTitleChanges = await adminService.run(
+      SELECT.from(ChangeView).where({
+        entity: "sap.capire.bookshop.Books",
+        attribute: "title",
+        modification: "delete"
+      })
+    );
+    expect(deleteTitleChanges.length).to.equal(1);
+    const deleteTitleChange = deleteTitleChanges[0];
+    expect(deleteTitleChange.objectID).to.equal(
+      "new title, In Preparation, France"
+    );
 
-    // // Check object ID "bookStore.city.country.countryName.code" when creating BookStores/Books
-    // // (parent/child) at the same time.
-    // cds.services.AdminService.entities.Books["@changelog"] = [
-    //   { "=": "bookStore.city.country.countryName.code" }
-    // ];
+    // Check the object ID like "bookStore.city.country.countryName.code", could be captured when creating root entity and child entity in the same time.
+    cds.services.AdminService.entities.Books["@changelog"] = [
+      { "=": "bookStore.city.country.countryName.code" }
+    ];
 
-    // const createBooksAndBookStoresAction = POST.bind(
-    //   {},
-    //   `/odata/v4/admin/BookStores`,
-    //   {
-    //     ID: "48268451-8552-42a6-a3d7-67564be86634",
-    //     city_ID: "60b4c55d-ec87-4edc-84cb-2e4ecd60de48",
-    //     books: [
-    //       {
-    //         ID: "12ed5dd8-d45b-11ed-afa1-1942bd119007",
-    //         title: "New title"
-    //       }
-    //     ]
-    //   }
-    // );
+    const createBooksAndBookStoresAction = POST.bind(
+      {},
+      `/odata/v4/admin/BookStores`,
+      {
+        ID: "48268451-8552-42a6-a3d7-67564be86634",
+        city_ID: "60b4c55d-ec87-4edc-84cb-2e4ecd60de48",
+        books: [
+          {
+            ID: "12ed5dd8-d45b-11ed-afa1-1942bd119007",
+            title: "New title"
+          }
+        ]
+      }
+    );
 
-    // await utils.apiAction(
-    //   "admin",
-    //   "BookStores",
-    //   "48268451-8552-42a6-a3d7-67564be86634",
-    //   "AdminService",
-    //   createBooksAndBookStoresAction,
-    //   true
-    // );
+    await utils.apiAction(
+      "admin",
+      "BookStores",
+      "48268451-8552-42a6-a3d7-67564be86634",
+      "AdminService",
+      createBooksAndBookStoresAction,
+      true
+    );
 
-    // const createBooksAndBookStoresChanges = await adminService.run(
-    //   SELECT.from(ChangeView).where({
-    //     entity: "sap.capire.bookshop.Books",
-    //     attribute: "title",
-    //     modification: "create"
-    //   })
-    // );
-    // expect(createBooksAndBookStoresChanges.length).to.equal(1);
-    // const createBooksAndBookStoresChange = createBooksAndBookStoresChanges[0];
-    // expect(createBooksAndBookStoresChange.objectID).to.equal("USA");
+    const createBooksAndBookStoresChanges = await adminService.run(
+      SELECT.from(ChangeView).where({
+        entity: "sap.capire.bookshop.Books",
+        attribute: "title",
+        modification: "create"
+      })
+    );
+    expect(createBooksAndBookStoresChanges.length).to.equal(1);
+    const createBooksAndBookStoresChange = createBooksAndBookStoresChanges[0];
+    expect(createBooksAndBookStoresChange.objectID).to.equal("USA");
+
+    cds.services.AdminService.entities.Books["@changelog"] = [
+      { "=": "title" },
+      { "=": "author.name.firstName" },
+      { "=": "author.name.lastName" }
+    ];
 
     // Test object id when parent and child nodes are created at the same time
     const createAction = POST.bind({}, `/odata/v4/admin/RootEntity`, {
@@ -1138,7 +1143,7 @@ describe("change log integration test", () => {
     const updateEntityChange = updateEntityChanges[0];
     expect(updateEntityChange.objectID).to.equal("Open");
 
-    // // Tests the object id when the parent node update and child node deletion occur simultaneously
+    // Tests the object id when the parent node update and child node deletion occur simultaneously
     const deleteEntityAction = PATCH.bind(
       {},
       `/odata/v4/admin/RootEntity(ID=01234567-89ab-cdef-0123-987654fedcba,IsActiveEntity=false)`,
@@ -1164,12 +1169,6 @@ describe("change log integration test", () => {
     expect(deleteEntityChanges.length).to.equal(1);
     const deleteEntityChange = deleteEntityChanges[0];
     expect(deleteEntityChange.objectID).to.equal("Closed");
-
-    cds.services.AdminService.entities.Books["@changelog"] = [
-      { "=": "title" },
-      { "=": "author.name.firstName" },
-      { "=": "author.name.lastName" }
-    ];
   });
 
   it("8.1 Annotate fields from chained associated entities as displayed value (ERP4SMEPREPWORKAPPPLAT-1094 ERP4SMEPREPWORKAPPPLAT-4542)", async () => {
@@ -1481,83 +1480,33 @@ describe("change log integration test", () => {
     expect(registryChange.parentObjectID).to.equal("City Lights Books");
   });
 
-  it.only("10.6 Composition of one node deleted - should log changes for root entity (ERP4SMEPREPWORKAPPPLAT-2913)", async () => {
-    const action = POST.bind({}, `/admin/RootEntity`, {
-      ID: "9d703c23-54a8-4eff-81c1-cdce6b8376b2",
-      name: "rootEntity name"
-    });
-    await utils.apiAction(
-      "admin",
-      "RootEntity",
-      "9d703c23-54a8-4eff-81c1-cdce6b8376b2",
-      "AdminService",
-      action,
-      true
-    );
-
-    const actionPH = PATCH.bind(
+  it("10.6 Composition of one node deleted - should log changes for root entity (ERP4SMEPREPWORKAPPPLAT-2913)", async () => {
+    const action = DELETE.bind(
       {},
-      `/admin/RootEntity(ID=9d703c23-54a8-4eff-81c1-cdce6b8376b2,IsActiveEntity=false)`,
-      {
-        lifecycleStatus: {
-          code: "CL"
-        }
-      }
-    );
-
-    await utils.apiAction(
-      "admin",
-      "RootEntity",
-      "9d703c23-54a8-4eff-81c1-cdce6b8376b2",
-      "AdminService",
-      actionPH
-    );
-
-    const actionDel = DELETE.bind(
-      {},
-      `/admin/RootEntity(ID=9d703c23-54a8-4eff-81c1-cdce6b8376b2,IsActiveEntity=false)`
+      `/odata/v4/admin/BookStoreRegistry(ID=12ed5dd8-d45b-11ed-afa1-0242ac120002,IsActiveEntity=false)`
     );
     await utils.apiAction(
       "admin",
-      "RootEntity",
-      "9d703c23-54a8-4eff-81c1-cdce6b8376b2",
+      "BookStores",
+      "8aaed432-8336-4b0d-be7e-3ef1ce7f13ea",
       "AdminService",
-      actionDel
+      action
     );
-    const before = await SELECT.from(`sap.changelog.ChangeLog`);
-    const beforeChange = await SELECT.from(`sap.changelog.Changes`);
-    // await DELETE.from(adminService.entities.BookStoreRegistry).where({
-    //   ID: "12ed5dd8-d45b-11ed-afa1-0242ac654321"
-    // });
-    const after = await SELECT.from(`sap.changelog.ChangeLog`);
-    const afterChange = await SELECT.from(`sap.changelog.Changes`);
-
-    // const action = DELETE.bind(
-    //   {},
-    //   `/admin/BookStoreRegistry(ID=12ed5dd8-d45b-11ed-afa1-0242ac120002,IsActiveEntity=false)`
-    // );
-    // await utils.apiAction(
-    //   "admin",
-    //   "BookStores",
-    //   "8aaed432-8336-4b0d-be7e-3ef1ce7f13ea",
-    //   "AdminService",
-    //   action
-    // );
-    // const registryChanges = await adminService.run(
-    //   SELECT.from(ChangeView).where({
-    //     entity: "sap.capire.bookshop.BookStoreRegistry",
-    //     attribute: "validOn"
-    //   })
-    // );
-    // expect(registryChanges.length).to.equal(1);
-    // const registryChange = registryChanges[0];
-    // expect(registryChange.attribute).to.equal("Valid On");
-    // expect(registryChange.modification).to.equal("Delete");
-    // expect(registryChange.valueChangedFrom).to.equal("2018-09-01");
-    // expect(registryChange.valueChangedTo).to.equal("");
-    // expect(registryChange.parentKey).to.equal(
-    //   "8aaed432-8336-4b0d-be7e-3ef1ce7f13ea"
-    // );
-    // expect(registryChange.parentObjectID).to.equal("City Lights Books");
+    const registryChanges = await adminService.run(
+      SELECT.from(ChangeView).where({
+        entity: "sap.capire.bookshop.BookStoreRegistry",
+        attribute: "validOn"
+      })
+    );
+    expect(registryChanges.length).to.equal(1);
+    const registryChange = registryChanges[0];
+    expect(registryChange.attribute).to.equal("Valid On");
+    expect(registryChange.modification).to.equal("Delete");
+    expect(registryChange.valueChangedFrom).to.equal("2018-09-01");
+    expect(registryChange.valueChangedTo).to.equal("");
+    expect(registryChange.parentKey).to.equal(
+      "8aaed432-8336-4b0d-be7e-3ef1ce7f13ea"
+    );
+    expect(registryChange.parentObjectID).to.equal("City Lights Books");
   });
 });

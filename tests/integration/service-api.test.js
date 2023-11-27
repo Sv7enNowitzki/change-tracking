@@ -96,9 +96,10 @@ describe("change log integration test", () => {
       attribute: "title",
       modification: "create"
     });
-    // expect(createChanges.length).to.equal(1);
-    // const createChange = createChanges[0];
-    // expect(createChange.objectID).to.equal("In Preparation");
+    expect(createChanges.length).to.equal(1);
+    const createChange = createChanges[0];
+    expect(createChange.objectID).to.equal("In Preparation");
+
     await UPDATE(
       adminService.entities.Level3Entity,
       "12ed5dd8-d45b-11ed-afa1-0242ac654321"
@@ -113,27 +114,18 @@ describe("change log integration test", () => {
     expect(createChanges.length).to.equal(1);
     const updateChange = updateChanges[0];
     expect(updateChange.objectID).to.equal("In Preparation");
-    // await UPDATE(adminService.entities.Level2Entity)
-    //   .where({ ID: "dd1fdd7d-da2a-4600-940b-0baf2946c4ff" })
-    //   .with({
-    //     child: []
-    //   });
-    const before = await SELECT.from(`sap.changelog.ChangeLog`);
-    const beforeChange = await SELECT.from(`sap.changelog.Changes`);
+
     await DELETE.from(adminService.entities.Level3Entity).where({
       ID: "12ed5dd8-d45b-11ed-afa1-0242ac654321"
     });
-    const after = await SELECT.from(`sap.changelog.ChangeLog`);
-    const afterChange = await SELECT.from(`sap.changelog.Changes`);
-
-    const deleteChanges = await SELECT.from(ChangeView).where({
+    let deleteChanges = await SELECT.from(ChangeView).where({
       entity: "sap.capire.bookshop.Level3Entity",
       attribute: "title",
       modification: "delete"
     });
-    // expect(deleteChanges.length).to.equal(1);
-    // const deleteChange = deleteChanges[0];
-    // expect(deleteChange.objectID).to.equal("In Preparation");
+    expect(deleteChanges.length).to.equal(1);
+    const deleteChange = deleteChanges[0];
+    expect(deleteChange.objectID).to.equal("In Preparation");
   });
 
   it("8.3 Annotate fields from chained associated entities as displayed value (ERP4SMEPREPWORKAPPPLAT-4542)", async () => {
@@ -239,51 +231,27 @@ describe("change log integration test", () => {
     ];
   });
 
-  it.only("10.9 Child entity deep delete by QL API  - should log changes on root entity (ERP4SMEPREPWORKAPPPLAT-3063)", async () => {
-    // await UPDATE(adminService.entities.BookStores)
-    //   .where({ ID: "64625905-c234-4d0d-9bc1-283ee8946770" })
-    //   .with({
-    //     registry: null,
-    //     registry_ID: null
-    //   });
-    const entityData = [
-      {
-        ID: "12ed5dd8-d45b-11ed-afa1-0242ac654321",
-        code: "prepare",
-        validOn: "2023-11-23"
-      }
-    ];
-    await adminService.run(
-      INSERT.into(adminService.entities.BookStoreRegistry).entries(entityData)
-    );
-    await UPDATE(
-      adminService.entities.BookStoreRegistry,
-      "12ed5dd8-d45b-11ed-afa1-0242ac654321"
-    ).with({
-      validOn: "2023-12-24"
-    });
-    // expect(changes111.length).to.equal(1);
-    const before = await SELECT.from(`sap.changelog.ChangeLog`);
-    const beforeChange = await SELECT.from(`sap.changelog.Changes`);
-    await DELETE.from(adminService.entities.BookStoreRegistry).where({
-      ID: "12ed5dd8-d45b-11ed-afa1-0242ac654321"
-    });
-    const after = await SELECT.from(`sap.changelog.ChangeLog`);
-    const afterChange = await SELECT.from(`sap.changelog.Changes`);
+  it("10.9 Child entity deep delete by QL API  - should log changes on root entity (ERP4SMEPREPWORKAPPPLAT-3063)", async () => {
+    await UPDATE(adminService.entities.BookStores)
+      .where({ ID: "64625905-c234-4d0d-9bc1-283ee8946770" })
+      .with({
+        registry: null,
+        registry_ID: null
+      });
 
     const changes = await SELECT.from(ChangeView).where({
       entity: "sap.capire.bookshop.BookStoreRegistry",
       attribute: "validOn"
     });
 
-    // expect(changes.length).to.equal(1);
-    // expect(changes[0].entityKey).to.equal(
-    //   "64625905-c234-4d0d-9bc1-283ee8946770"
-    // );
-    // expect(changes[0].objectID).to.equal("Paris-1");
-    // expect(changes[0].modification).to.equal("delete");
-    // expect(changes[0].parentObjectID).to.equal("Shakespeare and Company");
-    // expect(changes[0].valueChangedFrom).to.equal("2012-01-01");
-    // expect(changes[0].valueChangedTo).to.equal("");
+    expect(changes.length).to.equal(1);
+    expect(changes[0].entityKey).to.equal(
+      "64625905-c234-4d0d-9bc1-283ee8946770"
+    );
+    expect(changes[0].objectID).to.equal("Paris-1");
+    expect(changes[0].modification).to.equal("delete");
+    expect(changes[0].parentObjectID).to.equal("Shakespeare and Company");
+    expect(changes[0].valueChangedFrom).to.equal("2012-01-01");
+    expect(changes[0].valueChangedTo).to.equal("");
   });
 });
