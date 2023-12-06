@@ -5,4 +5,12 @@ module.exports = cds.service.impl(async (srv) => {
         const newBookStores = req.data;
         newBookStores.lifecycleStatus_code = "IP";
     });
+    const onActivateBooks = async (req) => {
+        const entity = req.entity;
+        const entityID = req._params[req._params.length - 1].ID;
+        await UPDATE.entity(entity)
+          .where({ ID: entityID })
+          .set({ ActivationStatus_code: "VALID" });
+    };
+    srv.on("activate", "Books", onActivateBooks);
 });

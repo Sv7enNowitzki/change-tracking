@@ -9,6 +9,8 @@ using {
   sap.capire.common.types.LifecycleStatusCode as LifecycleStatusCode,
   sap.capire.common.types.BookTypeCodes as BookTypeCodes,
 } from './common/types.cds';
+using {sap.capire.bookshop.ActivationStatusCode} from './codelists';
+using {sap.capire.bookshop.PaymentAgreementStatusCodes as PaymentAgreementStatusCodes} from './codelists';
 
 namespace sap.capire.bookshop;
 
@@ -50,6 +52,9 @@ entity Books : managed, cuid {
   image     : LargeBinary @Core.MediaType : 'image/png';
   @title :                                  '{i18n>books.bookType}'
   bookType  : BookTypeCodes;
+  @title : '{i18n>Status}'
+  ActivationStatus : Association to one ActivationStatusCode;
+  PaymentAgreementStatus : Association to one PaymentAgreementStatusCodes on PaymentAgreementStatus.code = ActivationStatus.code;
   volumns   : Composition of many Volumns
                 on volumns.book = $self;
 }
