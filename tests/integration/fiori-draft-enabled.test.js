@@ -1082,4 +1082,23 @@ describe("change log integration test", () => {
         expect(registryChange.parentKey).to.equal("8aaed432-8336-4b0d-be7e-3ef1ce7f13ea");
         expect(registryChange.parentObjectID).to.equal("City Lights Books");
     });
+
+    it.only("11.1 custom action in child entity", async () => {
+        await POST(
+            `/admin/BookStores(ID=64625905-c234-4d0d-9bc1-283ee8946770,IsActiveEntity=true)/books(ID=9d703c23-54a8-4eff-81c1-cdce6b8376b1,IsActiveEntity=true)/AdminService.activate`,
+            {
+                ActivationStatus_code: "VALID",
+            },
+        );
+        let changes = await SELECT.from(ChangeView).where({
+            entity: "sap.capire.bookshop.Books",
+            attribute: "ActivationStatus",
+        });
+        expect(changes.length).to.equal(1);
+        expect(changes[0].valueChangedFrom).to.equal("");
+        expect(changes[0].valueChangedTo).to.equal("VALID");
+        expect(changes[0].objectID).to.equal("Wuthering Heights, Emily, Brontë");
+        expect(changes[0].parentKey).to.equal("64625905-c234-4d0d-9bc1-283ee8946770");
+        expect(changes[0].parentObjectID).to.equal("Shakespeare and Company");
+    });
 });

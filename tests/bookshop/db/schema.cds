@@ -140,6 +140,9 @@ entity OrderItem : cuid {
                on notes.orderItem = $self;
   quantity : Decimal(19, 2);
   price    : Decimal(19, 2);
+  @title : '{i18n>Status}'
+  ActivationStatus : Association to one ActivationStatusCode;
+  PaymentAgreementStatus : Association to one PaymentAgreementStatusCodes on PaymentAgreementStatus.code = ActivationStatus.code;
 }
 
 entity OrderItemNote : cuid {

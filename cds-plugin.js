@@ -32,8 +32,51 @@ cds.on('loaded', m => {
         entity.elements.changes = assoc
       }
 
-      // Add UI.Facet for Change History List
-      entity['@UI.Facets']?.push(facet)
+      if (entity['@UI.Facets']) {
+        // Add UI.Facet for Change History List
+        entity['@UI.Facets']?.push(facet)
+        if (entity.actions) {
+          // The update of the change history list of the entity needs to be triggered
+          for (const se of Object.values(entity.actions)) {
+            const targetProperties = se['@Common.SideEffects.TargetProperties'];
+            if (targetProperties?.length >= 0) {
+              if (targetProperties.findIndex((item) => item === 'changes') === -1) {
+                targetProperties.push('changes');
+              }
+            } else {
+              se['@Common.SideEffects.TargetProperties'] = ['changes'];
+            }
+            // When the custom action of the child entity is performed, the change history list of the parent entity is updated
+            for (const entityName in m.definitions) {
+              const parentName = m.definitions[entityName];
+              if (parentName.elements) {
+                for (const ele in parentName.elements) {
+                  const element = parentName.elements[ele];
+                  if (element.target === name && element.type === 'cds.Composition') {
+                    for (const eleName in entity.elements) {
+                      if (entity.elements[eleName].target === entityName) {
+                        const targetEntities = se['@Common.SideEffects.TargetEntities'];
+                        if (targetEntities?.length >= 0) {
+                          targetEntities.findIndex(
+                            (item) => item['='] === `${eleName}.changes`
+                          ) === -1 &&
+                            targetEntities.push({
+                              '=': `${eleName}.changes`
+                            });
+                        } else {
+                          se['@Common.SideEffects.TargetEntities'] = [
+                            { '=': `${eleName}.changes` }
+                          ];
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 })
