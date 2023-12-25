@@ -5,6 +5,24 @@ const isChangeTracked = (entity) => (
   || entity.elements && Object.values(entity.elements).some(e => e['@changelog'])) && entity.query?.SET?.op !== 'union'
 )
 
+// Add the appropriate Side Effects attribute to the custom action
+const addSideEffects = (actions, flag, element) => {
+  for (const se of Object.values(actions)) {
+    const target = flag ? 'TargetProperties' : 'TargetEntities'
+    const sideEffectAttr = se[`@Common.SideEffects.${target}`]
+    const property = flag ? 'changes' : { '=': `${element}.changes` }
+    if (sideEffectAttr?.length >= 0) {
+      sideEffectAttr.findIndex(
+        (item) =>
+          (item['='] ? item['='] : item) ===
+          (property['='] ? property['='] : property)
+      ) === -1 && sideEffectAttr.push(property)
+    } else {
+      se[`@Common.SideEffects.${target}`] = [property]
+    }
+  }
+}
+
 
 // Unfold @changelog annotations in loaded model
 cds.on('loaded', m => {
@@ -37,44 +55,23 @@ cds.on('loaded', m => {
       // Add UI.Facet for Change History List
       entity['@UI.Facets']?.push(facet)
 
-      // for custom action
+      // The changehistory list should be refreshed after the custom action is triggered
       if (entity.actions) {
-        // The update of the change history list of the entity needs to be triggered
-        for (const se of Object.values(entity.actions)) {
-          if (entity["@UI.Facets"]) {
-            const targetProperties = se["@Common.SideEffects.TargetProperties"];
-            if (targetProperties?.length >= 0) {
-              if (targetProperties.findIndex((item) => item === "changes") === -1) {
-                targetProperties.push("changes");
-              }
-            } else {
-              se["@Common.SideEffects.TargetProperties"] = ["changes"];
-            }
-          }
-          // When the custom action of the child entity is performed, the change history list of the parent entity is updated
-          for (const entityName in m.definitions) {
-            const parentName = m.definitions[entityName];
-            if (parentName.elements) {
-              for (const ele in parentName.elements) {
-                const element = parentName.elements[ele];
-                if (element.target === name && element.type === "cds.Composition") {
-                  for (const eleName in entity.elements) {
-                    if (entity.elements[eleName].target === entityName) {
-                      const targetEntities = se["@Common.SideEffects.TargetEntities"];
-                      if (targetEntities?.length >= 0) {
-                        targetEntities.findIndex(
-                          (item) => item["="] === `${eleName}.changes`
-                        ) === -1 &&
-                          targetEntities.push({
-                            "=": `${eleName}.changes`
-                          });
-                      } else {
-                        se["@Common.SideEffects.TargetEntities"] = [
-                          { "=": `${eleName}.changes` }
-                        ];
-                      }
-                    }
-                  }
+
+        // Update the changehistory list on the current entity when the custom action of the entity is triggered
+        if (entity["@UI.Facets"]) {
+          addSideEffects(entity.actions, true)
+        }
+
+        // When the custom action of the child entity is performed, the change history list of the parent entity is updated
+        if (entity.elements) {
+          breakLoop: for (const [ele, eleValue] of Object.entries(entity.elements)) {
+            const parentEntity = m.definitions[eleValue.target]
+            if (parentEntity && eleValue.type === "cds.Association") {
+              for (const value of Object.values(parentEntity.elements)) {
+                if (value.target === name) {
+                  addSideEffects(entity.actions, false, ele)
+                  break breakLoop
                 }
               }
             }
