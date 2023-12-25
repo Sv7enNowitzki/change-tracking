@@ -59,7 +59,7 @@ cds.on('loaded', m => {
       if (entity.actions) {
 
         // Update the changehistory list on the current entity when the custom action of the entity is triggered
-        if (entity["@UI.Facets"]) {
+        if (entity['@UI.Facets']) {
           addSideEffects(entity.actions, true)
         }
 
@@ -67,7 +67,7 @@ cds.on('loaded', m => {
         if (entity.elements) {
           breakLoop: for (const [ele, eleValue] of Object.entries(entity.elements)) {
             const parentEntity = m.definitions[eleValue.target]
-            if (parentEntity && eleValue.type === "cds.Association") {
+            if (parentEntity && eleValue.type === 'cds.Association') {
               for (const value of Object.values(parentEntity.elements)) {
                 if (value.target === name) {
                   addSideEffects(entity.actions, false, ele)
